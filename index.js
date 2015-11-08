@@ -2,22 +2,50 @@
 
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
 
-module.exports = (dir, db) => {
+const walk = (modulesPath, excludeDir, callback) => {
+    fs.readdirSync(modulesPath).forEach( file => {
+        const newPath = path.join(modulesPath, file);
 
-    if (!dir)
-        throw new Error('dir is required');
+        const stat = fs.statSync(newPath);
+
+        if ( stat && stat.isFile() && /(.*)\.(js|coffee)$/.test(file))
+            return callback(newPath);
+
+        if (stat && stat.isDirectory() && file !== excludeDir)
+            return walk(newPath, excludeDir, callback);
+    });
+};
+
+module.exports = (dir, ctx) => {
+
+    if (!dir) throw new Error('dir is required');
 
     const models = [];
 
     const stat = fs.statSync(dir);
-    if(!stat.isDirectory())
-        throw new Error('dir has to be a directory');
+    if(!stat.isDirectory()) throw new Error('dir must be a directory');
 
-    fs.readdirSync(dir).filter(p => path.extname(p) === '.js').forEach(p => {
-        const basename = path.basename(p,'.js');
-        models[basename] =  require(path.join(dir, basename))(db);
+    const register = (name, value) => {
+        if (models[name]) throw new Error('model already on stack: ' + name);
+        models[name] = value;
+    }
+
+    walk(dir, null, file => {
+        const basename = path.basename(file, path.extname(file));
+        const m = require(file);
+
+        if (typeof m === 'function'){
+            // test if function is a class
+            const match = util.inspect(m).toString().match(/^\[Function: (.*)\]$/);
+
+            if (!match) register(basename, m(ctx));
+            else register(match.slice(1), m);
+        }
+
+        if (typeof m === 'object') register(basename, m);
+
     });
-
     return models;
 }
