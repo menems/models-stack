@@ -1,4 +1,4 @@
-# models-stack
+# services-stack
 
 [![Node.js Version][node-image]][node-url]
 [![NPM version][npm-image]][npm-url]
@@ -6,20 +6,22 @@
 [![Dependency Status][dep-image]][dep-url]
 [![Coverage Status][cov-img]][cov-url]
 
-Stack recursively model file on array.
+Stack recursively services file on array.
 You can stack `function`, `object` or `class`.
 
 ## installation
 
 ```
-npm install model-stack
+npm install services-stack
 ```
 
 ## Usage
 
-if model file is a `function`, context will be automatically inject.
+if services file is a `function`, context will be automatically inject.
 
-if model file is a `class` or `object`, you need to pass manualy the context, via `new` for example
+if services file is a `class` or `object`, you need to pass manualy the context, via `new` for example
+
+`context` is an `object`. It contains a `service()` function. this allow to get services from another service.
 
 ```
 models/
@@ -37,7 +39,7 @@ const context = {
     ...
 };
 
-const stack = require('model-stack')('./models', context);
+const stack = require('services-stack')('./models', context);
 //[
 //  contacts : { method : ...},
 //  other : [Function],
@@ -45,14 +47,26 @@ const stack = require('model-stack')('./models', context);
 //]
 ```
 
+Example of a service.
 
-[node-image]: https://img.shields.io/node/v/models-stack.svg?style=flat-square
+```javascript
+module.exports = ctx => {
+    const db = ctx.db;
+    const contacts = ctx.service('contacts');
+
+    return {
+        ...
+    }
+}
+```
+
+[node-image]: https://img.shields.io/node/v/services-stack.svg?style=flat-square
 [node-url]: https://nodejs.org
-[npm-image]: https://img.shields.io/npm/v/models-stack.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/models-stack
-[travis-image]: https://img.shields.io/travis/menems/models-stack/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/menems/models-stack
-[cov-img]: https://coveralls.io/repos/menems/models-stack/badge.svg?branch=master&service=github
-[cov-url]: https://coveralls.io/github/menems/models-stack?branch=master
-[dep-image]: http://david-dm.org/menems/models-stack.svg?style=flat-square
-[dep-url]:http://david-dm.org/menems/models-stack
+[npm-image]: https://img.shields.io/npm/v/services-stack.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/services-stack
+[travis-image]: https://img.shields.io/travis/menems/services-stack/master.svg?style=flat-square
+[travis-url]: https://travis-ci.org/menems/services-stack
+[cov-img]: https://coveralls.io/repos/menems/services-stack/badge.svg?branch=master&service=github
+[cov-url]: https://coveralls.io/github/menems/services-stack?branch=master
+[dep-image]: http://david-dm.org/menems/services-stack.svg?style=flat-square
+[dep-url]:http://david-dm.org/menems/services-stack
