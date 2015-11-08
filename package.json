@@ -1,6 +1,6 @@
 {
   "name": "services-stack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "models stack utility",
   "main": "index.js",
   "scripts": {
