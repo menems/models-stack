@@ -1,5 +1,5 @@
 {
-  "name": "models-stack",
+  "name": "services-stack",
   "version": "1.0.1",
   "description": "models stack utility",
   "main": "index.js",
@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/menems/models-stack.git"
+    "url": "https://github.com/menems/services-stack.git"
   },
   "engines": {
     "node": ">= 4"
