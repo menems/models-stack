@@ -20,7 +20,6 @@ const walk = (modulesPath, excludeDir, callback) => {
 
 module.exports = (dir, ctx) => {
 
-    console.log('msg')
     if (!dir) throw new Error('dir is required');
 
     const services = {};
@@ -31,11 +30,10 @@ module.exports = (dir, ctx) => {
     ctx.service = name => services[name];
 
     walk(dir, null, file => {
-        const basename = path.basename(file, path.extname(file));
+        const name = path.basename(file, path.extname(file));
         const m = require(file);
         if (services[name]) throw new Error('model already on stack: ' + name);
-        services[name] = value;
-        register(basename, m);
+        services[name] = m;
     });
 
     for(let m  in services) {
