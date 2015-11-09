@@ -18,18 +18,19 @@ const walk = (modulesPath, excludeDir, callback) => {
     });
 };
 
-module.exports = (dir, ctx) => {
+module.exports = (_path, ctx) => {
 
-    if (!dir) throw new Error('dir is required');
+    if (!_path) throw new Error('_path is required');
+    ctx = ctx || {};
 
     const services = {};
 
-    const stat = fs.statSync(dir);
-    if(!stat.isDirectory()) throw new Error('dir must be a directory');
+    const stat = fs.statSync(_path);
+    if(!stat.isDirectory()) throw new Error('_path must be a directory');
 
     ctx.service = name => services[name];
 
-    walk(dir, null, file => {
+    walk(_path, null, file => {
         const name = path.basename(file, path.extname(file));
         const m = require(file);
         if (services[name]) throw new Error('model already on stack: ' + name);
@@ -42,6 +43,14 @@ module.exports = (dir, ctx) => {
         if (typeof service === 'function'){
             const match = util.inspect(service).toString().match(/^\[Function: (.*)\]$/);
             if (!match) services[m] = service(ctx);
+            else {
+                delete services[m]; //on met le bon nom
+                const class_name = match.slice(1);
+                if (services[class_name]) throw new Error('model already on stack: ' + class_name);
+                services[class_name] = service;
+
+            }
+
         }
     }
     return services;

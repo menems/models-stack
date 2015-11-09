@@ -4,7 +4,9 @@
   "description": "models stack utility",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --require should",
+    "test-cov": "istanbul cover _mocha -- --require should --bail",
+    "test-travis": "istanbul cover _mocha --report lcovonly -- --require should --bail"
   },
   "keywords": [
     "models",
@@ -20,5 +22,10 @@
   },
   "engines": {
     "node": ">= 4"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.0",
+    "mocha": "^2.3.3",
+    "should": "^7.1.1"
   }
 }
