@@ -31,21 +31,31 @@ module.exports = options => {
 
     options.context.service = name => services[name];
 
+    const addService = (name, value) => {
+        if (services[name])
+            throw new Error('service already on stack: ' + name);
+
+        services[name] = value;
+    }
+
     walk(options.path, {globs : options.globs}).forEach(s => {
         const abs = path.join(options.path,s);
         const name = path.basename(abs, path.extname(abs));
-        if (services[name])
-            throw new Error('model already on stack: ' + name);
-        services[name] = require(abs);
+
+        const fn = require(abs);
+
+        if (typeof fn === 'function'){
+            const match = util.inspect(fn).toString().match(/\[Function: (.*)\]/);
+            if (!match)
+                addService(name, fn(options.context));
+            else {
+                addService(match[1],fn);
+            }
+        } else {
+                addService(name, fn);
+
+        }
     })
 
-    for(let m  in services) {
-        const service = services[m];
-
-        if (typeof service === 'function'){
-            const match = util.inspect(service).toString().match(/^\[Function: (.*)\]$/);
-            if (!match) services[m] = service(options.context);
-        }
-    }
     return services;
 }

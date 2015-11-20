@@ -11,18 +11,38 @@ const _gpath = _path + '/resources';
 
 describe('services-stack', () => {
 
-    it('should throw if resources root path not exist', done => {
-        (() => servicesStack('./bad')).should.throw(/ENOENT.*/);
+    it('should throw if options is undefined', done => {
+        (() => servicesStack()).should.throw('options is required');
+        done();
+    });
+
+    it('should throw if options is not an object', done => {
+        (() => servicesStack(true)).should.throw('options must be an object');
+        done();
+    });
+
+    it('should throw if options.path is undefined', done => {
+        (() => servicesStack({})).should.throw('options.path is required');
+        done();
+    });
+
+
+    it('should throw if resources  path not exist', done => {
+        (() => servicesStack({path : './bad'})).should.throw(/ENOENT.*/);
         done();
     });
 
     it('should throw if resources root is not a directory', done => {
-        (() => servicesStack(_path + '/nop.js')).should.throw('_path must be a directory');
+        (() => servicesStack({path : _path + '/nop.js'})).should.throw('options.path must be a directory');
         done();
     });
 
     it('should work', done => {
-        const services = servicesStack(_gpath, {test: 'test'});
+        const services = servicesStack({
+            path: _gpath,
+            context: {test: 'test'}
+        });
+
         services.should.have.property('test');
         services.test.should.have.property('name');
         services.should.have.property('test1');
@@ -33,7 +53,7 @@ describe('services-stack', () => {
     })
 
     it('should throw if resources already exists', done => {
-        (() => servicesStack(_gpath + '2' )).should.throw('model already on stack: test');
+        (() => servicesStack({path: _gpath + '2'})).should.throw('service already on stack: test');
         done();
     });
 
