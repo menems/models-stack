@@ -1,4 +1,13 @@
 
+v1.1.0 / 2015-11-20
+===================
+
+  * fix: add test for ctx.service function
+  * fix: class support and add test
+  * chore: fix package.json
+  * feat: new signature
+  * Add test
+
 1.0.3 / 2015-11-08
 ==================
 
