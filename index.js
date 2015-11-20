@@ -3,54 +3,48 @@
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const walk = require('walk-sync');
 
-const walk = (modulesPath, excludeDir, callback) => {
-    fs.readdirSync(modulesPath).forEach( file => {
-        const newPath = path.join(modulesPath, file);
+module.exports = options => {
 
-        const stat = fs.statSync(newPath);
+    if (!options)
+        throw new Error('options is required');
 
-        if (stat && stat.isFile() && /(.*)\.(js|coffee)$/.test(file))
-            return callback(newPath);
+    if (typeof options != 'object')
+        throw new TypeError('options must be an object')
 
-        if (stat && stat.isDirectory() && file !== excludeDir)
-            return walk(newPath, excludeDir, callback);
-    });
-};
+    if (!options.path)
+        throw new Error('options.path is required');
 
-module.exports = (_path, ctx) => {
+    options.path = path.resolve(options.path);
 
-    if (!_path) throw new Error('_path is required');
-    ctx = ctx || {};
+    const stat = fs.statSync(options.path);
+
+    if(!stat.isDirectory())
+        throw new Error('options.path must be a directory');
+
+    options.globs = options.globs || ['**/*.js'];
 
     const services = {};
 
-    const stat = fs.statSync(_path);
-    if(!stat.isDirectory()) throw new Error('_path must be a directory');
+    options.context = options.context || {};
 
-    ctx.service = name => services[name];
+    options.context.service = name => services[name];
 
-    walk(_path, null, file => {
-        const name = path.basename(file, path.extname(file));
-        const m = require(file);
-        if (services[name]) throw new Error('model already on stack: ' + name);
-        services[name] = m;
-    });
+    walk(options.path, {globs : options.globs}).forEach(s => {
+        const abs = path.join(options.path,s);
+        const name = path.basename(abs, path.extname(abs));
+        if (services[name])
+            throw new Error('model already on stack: ' + name);
+        services[name] = require(abs);
+    })
 
     for(let m  in services) {
         const service = services[m];
 
         if (typeof service === 'function'){
             const match = util.inspect(service).toString().match(/^\[Function: (.*)\]$/);
-            if (!match) services[m] = service(ctx);
-            else {
-                delete services[m]; //on met le bon nom
-                const class_name = match.slice(1);
-                if (services[class_name]) throw new Error('model already on stack: ' + class_name);
-                services[class_name] = service;
-
-            }
-
+            if (!match) services[m] = service(options.context);
         }
     }
     return services;
