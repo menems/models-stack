@@ -39,7 +39,11 @@ const context = {
     ...
 };
 
-const stack = require('services-stack')('./models', context);
+const stack = require('services-stack')({
+    path : './models'
+    context: context
+});
+
 //[
 //  contacts : { method : ...},
 //  other : [Function],

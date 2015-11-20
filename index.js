@@ -1,3 +1,7 @@
+/**
+ * author : blaz <blaz@menems.net
+ */
+
 'use strict';
 
 const fs = require('fs');
@@ -11,7 +15,7 @@ module.exports = options => {
         throw new Error('options is required');
 
     if (typeof options != 'object')
-        throw new TypeError('options must be an object')
+        throw new TypeError('options must be an object');
 
     if (!options.path)
         throw new Error('options.path is required');
@@ -29,14 +33,17 @@ module.exports = options => {
 
     options.context = options.context || {};
 
-    options.context.service = name => services[name];
+    options.context.service = name => {
+        if (!services[name])
+            throw new Error('service ' + name + ' undefined');
+        return services[name];
+    }
 
     const addService = (name, value) => {
         if (services[name])
             throw new Error('service already on stack: ' + name);
-
         services[name] = value;
-    }
+    };
 
     walk(options.path, {globs : options.globs}).forEach(s => {
         const abs = path.join(options.path,s);
@@ -55,7 +62,7 @@ module.exports = options => {
                 addService(name, fn);
 
         }
-    })
+    });
 
     return services;
 }
