@@ -43,12 +43,19 @@ describe('services-stack', () => {
             context: {test: 'test'}
         });
 
-        services.should.have.property('test');
-        services.test.should.have.property('name');
-        services.should.have.property('test1');
-        services.test1.should.have.property('serv');
-        services.should.have.property('Test');
-        assert(typeof services.Test === 'function');
+        assert(typeof services.get === 'function');
+
+        const s1  = services.get('test');
+        assert(typeof s1 == 'object');
+        s1.should.have.property('name', 'app');
+
+        const s2  = services.get('test1');
+        assert(typeof s2 == 'object');
+        s2.should.have.property('name', 'app');
+
+        const s3  = services.get('Test');
+        assert(typeof s3 == 'function');
+
         done();
     })
 

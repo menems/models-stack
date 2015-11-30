@@ -1,5 +1,6 @@
 module.exports = ctx => {
+
     return {
-        name : ctx.service('test3').name
+        name : ctx.service('test').name
     }
 }

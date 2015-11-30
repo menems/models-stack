@@ -32,23 +32,18 @@ models/
 ```
 
 ```javascript
-
 const context = {
     db : db,
     config : config,
     ...
 };
 
-const stack = require('services-stack')({
+const services = require('services-stack')({
     path : './models'
     context: context
 });
 
-//[
-//  contacts : { method : ...},
-//  other : [Function],
-//  User : [Function: User]
-//]
+const contact = services.get('contacts');
 ```
 
 Example of a service.
